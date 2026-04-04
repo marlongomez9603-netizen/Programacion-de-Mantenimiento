@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laboratorio – Hoja de Vida del Equipo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<style>
+  :root {
+    --navy:   #1B2A4A;
+    --steel:  #3D5A80;
+    --teal:   #028090;
+    --mint:   #02C39A;
+    --accent: #E8951A;
+    --light:  #F0F4F8;
+    --card:   #F8FAFC;
+    --gray:   #64748B;
+    --border: #CBD5E1;
+    --white:  #FFFFFF;
+    --red:    #DC2626;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: var(--light);
+    color: var(--navy);
+    font-size: 15px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--navy);
+    color: var(--white);
+    padding: 14px 16px 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  }
+  header h1 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--mint);
+    line-height: 1.2;
+  }
+  header p {
+    font-size: 11px;
+    color: #94A3B8;
+    margin-top: 2px;
+  }
+
+  /* ── TAB NAV ── */
+  .tab-nav {
+    display: flex;
+    background: var(--navy);
+    border-top: 1px solid rgba(255,255,255,.1);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    flex: 1;
+    min-width: 110px;
+    padding: 11px 8px;
+    border: none;
+    background: transparent;
+    color: #94A3B8;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .tab-btn.active {
+    color: var(--mint);
+    border-bottom-color: var(--mint);
+  }
+
+  /* ── CONTENT ── */
+  .tab-pane { display: none; padding: 16px; }
+  .tab-pane.active { display: block; }
+
+  /* ── SECTION CARD ── */
+  .section {
+    background: var(--white);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.08);
+  }
+  .section-header {
+    background: var(--teal);
+    color: var(--white);
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .3px;
+  }
+  .section-body { padding: 12px 14px; }
+
+  /* ── FIELDS ── */
+  .field-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .field-group.full { grid-template-columns: 1fr; }
+  @media (max-width: 480px) {
+    .field-group { grid-template-columns: 1fr; }
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .field label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .field input,
+  .field select,
+  .field textarea {
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 9px 10px;
+    font-size: 14px;
+    color: var(--navy);
+    background: var(--card);
+    width: 100%;
+    transition: border-color .2s;
+    font-family: inherit;
+    -webkit-appearance: none;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--teal);
+    background: var(--white);
+  }
+  .field textarea { resize: vertical; min-height: 70px; }
+
+  /* select arrow */
+  .field select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748B' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 30px;
+  }
+
+  /* Criticality pills */
+  .pill-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .pill-group input[type="radio"] { display: none; }
+  .pill-group label {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 2px solid var(--border);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--gray);
+    transition: all .2s;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+  .pill-group input[type="radio"]:checked + label {
+    border-color: currentColor;
+  }
+  .pill-alto input:checked + label   { color: var(--red);    border-color: var(--red);    background: #FEF2F2; }
+  .pill-medio input:checked + label  { color: var(--accent); border-color: var(--accent); background: #FFF7ED; }
+  .pill-bajo input:checked + label   { color: var(--teal);   border-color: var(--teal);   background: #F0FDFA; }
+
+  /* ── PLAN TABLE ── */
+  .plan-table-wrap { overflow-x: auto; }
+  .plan-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+  }
+  .plan-table th {
+    background: var(--navy);
+    color: var(--white);
+    padding: 9px 8px;
+    font-size: 11px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  .plan-table td {
+    padding: 5px 4px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .plan-table tr:nth-child(even) td { background: var(--card); }
+  .plan-table input,
+  .plan-table select,
+  .plan-table textarea {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 6px;
+    font-size: 12px;
+    font-family: inherit;
+    color: var(--navy);
+    background: transparent;
+    resize: none;
+  }
+  .plan-table input:focus,
+  .plan-table select:focus,
+  .plan-table textarea:focus {
+    outline: none;
+    border-color: var(--teal);
+    background: var(--white);
+  }
+  .plan-table .num-col {
+    width: 30px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--teal);
+  }
+  .plan-table select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748B' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 4px center;
+    padding-right: 18px;
+    -webkit-appearance: none;
+  }
+
+  /* Add row btn */
+  .btn-add-row {
+    margin-top: 10px;
+    padding: 9px 18px;
+    background: transparent;
+    border: 2px dashed var(--teal);
+    border-radius: 8px;
+    color: var(--teal);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    transition: background .2s;
+  }
+  .btn-add-row:hover { background: #F0FDFA; }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 14px;
+  }
+  @media (max-width: 500px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+  }
+  .kpi-card {
+    background: var(--card);
+    border-radius: 8px;
+    padding: 12px;
+    border-left: 4px solid var(--teal);
+    text-align: center;
+  }
+  .kpi-card:nth-child(2) { border-left-color: var(--accent); }
+  .kpi-card:nth-child(3) { border-left-color: var(--navy); }
+  .kpi-label {
+    font-size: 11px;
+    color: var(--gray);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .kpi-value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--navy);
+    margin: 4px 0 2px;
+  }
+  .kpi-formula {
+    font-size: 10px;
+    color: var(--gray);
+    font-style: italic;
+  }
+  .kpi-input {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 6px;
+    font-size: 16px;
+    font-weight: 700;
+    text-align: center;
+    color: var(--navy);
+    font-family: inherit;
+    background: var(--white);
+    margin-top: 4px;
+  }
+  .kpi-input:focus { outline: none; border-color: var(--teal); }
+
+  /* ── TAXONOMY ── */
+  .taxonomy-list { display: flex; flex-direction: column; gap: 8px; }
+  .tax-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--card);
+    border-radius: 6px;
+    padding: 6px 10px;
+  }
+  .tax-badge {
+    background: var(--teal);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 3px 7px;
+    min-width: 26px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .tax-item input {
+    flex: 1;
+    border: none;
+    border-bottom: 1.5px solid var(--border);
+    background: transparent;
+    padding: 4px 2px;
+    font-size: 14px;
+    color: var(--navy);
+    font-family: inherit;
+  }
+  .tax-item input:focus { outline: none; border-bottom-color: var(--teal); }
+
+  /* ── CODE BOX ── */
+  .code-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    background: var(--navy);
+    border-radius: 8px;
+    padding: 10px 14px;
+  }
+  .code-box label {
+    color: var(--mint);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .code-box input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid var(--mint);
+    color: var(--white);
+    font-size: 18px;
+    font-family: 'Consolas', monospace;
+    font-weight: 700;
+    padding: 4px 4px;
+    letter-spacing: 2px;
+  }
+  .code-box input:focus { outline: none; }
+
+  /* ── FLOATING PDF BTN ── */
+  .fab {
+    position: fixed;
+    bottom: 20px;
+    right: 16px;
+    background: var(--accent);
+    color: var(--white);
+    border: none;
+    border-radius: 50px;
+    padding: 14px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(232,149,26,.5);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 999;
+    transition: transform .1s;
+  }
+  .fab:active { transform: scale(.96); }
+  .fab svg { width: 18px; height: 18px; }
+
+  /* Loading overlay */
+  .loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(27,42,74,.7);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 14px;
+    color: var(--white);
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .loading-overlay.show { display: flex; }
+  .spinner {
+    width: 44px; height: 44px;
+    border: 4px solid rgba(255,255,255,.3);
+    border-top-color: var(--mint);
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── PRINT / PDF STYLES ── */
+  @media print {
+    header, .tab-nav, .fab, .btn-add-row { display: none !important; }
+    .tab-pane { display: block !important; page-break-after: always; }
+    body { background: white; }
+  }
+
+  /* Info note */
+  .info-note {
+    background: #EFF6FF;
+    border-left: 4px solid #3B82F6;
+    border-radius: 0 6px 6px 0;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #1E40AF;
+    margin-bottom: 12px;
+  }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    background: rgba(255,255,255,.15);
+    border-radius: 4px;
+    height: 5px;
+    margin-top: 8px;
+  }
+  .progress-bar {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--mint);
+    transition: width .3s;
+    width: 0%;
+  }
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loading">
+  <div class="spinner"></div>
+  <span>Generando PDF...</span>
+</div>
+
+<!-- HEADER -->
+<header>
+  <h1>🔧 Hoja de Vida del Equipo</h1>
+  <p>Programación y Control del Mantenimiento — Laboratorio Práctico</p>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+</header>
+
+<!-- TABS -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab(0)">1. Hoja de Vida</button>
+  <button class="tab-btn" onclick="switchTab(1)">2. Plan Mto.</button>
+  <button class="tab-btn" onclick="switchTab(2)">3. Historial</button>
+</div>
+
+<!-- ════════════════════════════════════════
+     TAB 1 — HOJA DE VIDA
+════════════════════════════════════════ -->
+<div class="tab-pane active" id="tab0">
+
+  <!-- 1. Identificación -->
+  <div class="section">
+    <div class="section-header">1. Datos de Identificación</div>
+    <div class="section-body">
+      <div class="field-group">
+        <div class="field">
+          <label>Nombre del equipo</label>
+          <input type="text" id="eq_nombre" placeholder="Ej: Compresor de aire" oninput="updateProgress()">
+        </div>
+        <div class="field">
+          <label>Código del equipo</label>
+          <input type="text" id="eq_codigo" placeholder="Ej: AC-CP-001" oninput="updateProgress()">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Ubicación / Área</label>
+          <input type="text" id="eq_ubicacion" placeholder="Ej: Planta de compresión">
+        </div>
+        <div class="field">
+          <label>Planta / Sistema</label>
+          <input type="text" id="eq_planta" placeholder="Ej: Sistema de aire comprimido">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Fabricante</label>
+          <input type="text" id="eq_fabricante" placeholder="Ej: Sullair">
+        </div>
+        <div class="field">
+          <label>Modelo</label>
+          <input type="text" id="eq_modelo" placeholder="Ej: LS-12">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Número de serie</label>
+          <input type="text" id="eq_serie" placeholder="Ej: SN-2019-04821">
+        </div>
+        <div class="field">
+          <label>Año de fabricación</label>
+          <input type="number" id="eq_anio" placeholder="Ej: 2019" min="1950" max="2030">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Fecha de instalación</label>
+          <input type="date" id="eq_instalacion">
+        </div>
+        <div class="field">
+          <label>Estado actual</label>
+          <select id="eq_estado">
+            <option value="">— Seleccionar —</option>
+            <option>Operativo</option>
+            <option>Fuera de servicio</option>
+            <option>En mantenimiento</option>
+            <option>Reserva</option>
+            <option>Dado de baja</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Proveedor</label>
+          <input type="text" id="eq_proveedor" placeholder="Nombre del proveedor">
+        </div>
+        <div class="field">
+          <label>N° de orden de compra</label>
+          <input type="text" id="eq_oc" placeholder="OC-XXXX">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. Especificaciones -->
+  <div class="section">
+    <div class="section-header">2. Especificaciones Técnicas</div>
+    <div class="section-body">
+      <div class="field-group">
+        <div class="field">
+          <label>Potencia</label>
+          <input type="text" id="sp_potencia" placeholder="Ej: 15 HP / 11.2 kW">
+        </div>
+        <div class="field">
+          <label>Voltaje</label>
+          <input type="text" id="sp_voltaje" placeholder="Ej: 460 V / 3F">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Corriente nominal</label>
+          <input type="text" id="sp_corriente" placeholder="Ej: 22 A">
+        </div>
+        <div class="field">
+          <label>RPM</label>
+          <input type="text" id="sp_rpm" placeholder="Ej: 1750 RPM">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Presión de trabajo</label>
+          <input type="text" id="sp_presion" placeholder="Ej: 125 PSI / 8.6 bar">
+        </div>
+        <div class="field">
+          <label>Caudal</label>
+          <input type="text" id="sp_caudal" placeholder="Ej: 50 CFM">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Temperatura de operación</label>
+          <input type="text" id="sp_temp" placeholder="Ej: Ambiente — 80°C">
+        </div>
+        <div class="field">
+          <label>Fluido de trabajo</label>
+          <input type="text" id="sp_fluido" placeholder="Ej: Aire / Aceite lubricante">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Peso</label>
+          <input type="text" id="sp_peso" placeholder="Ej: 185 kg">
+        </div>
+        <div class="field">
+          <label>Dimensiones (L × A × H)</label>
+          <input type="text" id="sp_dim" placeholder="Ej: 1.2 × 0.6 × 1.1 m">
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Tipo de accionamiento</label>
+          <input type="text" id="sp_accionamiento" placeholder="Ej: Motor eléctrico / Correa">
+        </div>
+        <div class="field">
+          <label>Tipo de lubricante</label>
+          <input type="text" id="sp_lubricante" placeholder="Ej: Aceite sintético ISO VG 46">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. Taxonomía ISO 14224 -->
+  <div class="section">
+    <div class="section-header">3. Codificación y Taxonomía (ISO 14224)</div>
+    <div class="section-body">
+      <div class="info-note">
+        📌 Complete los 7 niveles jerárquicos según la norma ISO 14224, de lo más general a lo más específico.
+      </div>
+      <div class="taxonomy-list">
+        <div class="tax-item">
+          <span class="tax-badge">1</span>
+          <span style="font-size:11px;color:var(--gray);min-width:120px;flex-shrink:0;">Industria</span>
+          <input type="text" id="tax1" placeholder="Ej: Manufactura / Petróleo y Gas">
+        </div>
+        <div class="tax-item">
+          <span class="tax-badge">2</span>
+          <span style="font-size:11px;color:var(--gray);min-width:120px;flex-shrink:0;">Categoría de negocio</span>
+          <input type="text" id="tax2" placeholder="Ej: Producción / Exploración">
+        </div>
+        <div class="tax-item">
+          <span class="tax-badge">3</span>
+          <span style="font-size:11px;color:var(--gray);min-width:120px;flex-shrink:0;">Instalación</span>
+          <input type="text" id="tax3" placeholder="Ej: Planta de compresión">
+        </div>
+        <div class="tax-item">
+          <span class="tax-badge">4</span>
+          <span style="font-size:11px;color:var(--gray);min-width:120px;flex-shrink:0;">Planta / Unidad</span>
+          <input type="text" id="tax4" placeholder="Ej: Unidad de tratamiento de gas">
+        </div>
+        <div class="tax-item">
+          <span class="tax-badge">5</span>
+          <span style="font-size:11px;color:var(--gray);min-width:120px;flex-shrink:0;">Sección / Sistema</span>
+          <input type="text" id="tax5" placeholder="Ej: Sistema de aire comprimido">
+        </div>
+        <div class="tax-item">
+          <span class="tax-badge">6</span>
+          <span style="font-size:11px;color:var(--gray);min-width:120px;flex-shrink:0;">Equipo</span>
+          <input type="text" id="tax6" placeholder="Ej: Compresor reciprocante">
+        </div>
+        <div class="tax-item">
+          <span class="tax-badge">7</span>
+          <span style="font-size:11px;color:var(--gray);min-width:120px;flex-shrink:0;">Componente</span>
+          <input type="text" id="tax7" placeholder="Ej: Válvula de descarga / Motor">
+        </div>
+      </div>
+      <div class="code-box">
+        <label>Código asignado:</label>
+        <input type="text" id="tax_codigo" placeholder="AC-CP-001-A">
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. Criticidad -->
+  <div class="section">
+    <div class="section-header">4. Análisis de Criticidad</div>
+    <div class="section-body">
+      <div class="field-group">
+        <div class="field">
+          <label>Impacto en producción</label>
+          <div class="pill-group">
+            <span class="pill-alto">
+              <input type="radio" name="crit_prod" id="cp_a" value="Alto">
+              <label for="cp_a">Alto</label>
+            </span>
+            <span class="pill-medio">
+              <input type="radio" name="crit_prod" id="cp_m" value="Medio">
+              <label for="cp_m">Medio</label>
+            </span>
+            <span class="pill-bajo">
+              <input type="radio" name="crit_prod" id="cp_b" value="Bajo">
+              <label for="cp_b">Bajo</label>
+            </span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Frecuencia de falla</label>
+          <div class="pill-group">
+            <span class="pill-alto">
+              <input type="radio" name="crit_freq" id="cf_a" value="Alto">
+              <label for="cf_a">Alta</label>
+            </span>
+            <span class="pill-medio">
+              <input type="radio" name="crit_freq" id="cf_m" value="Medio">
+              <label for="cf_m">Media</label>
+            </span>
+            <span class="pill-bajo">
+              <input type="radio" name="crit_freq" id="cf_b" value="Bajo">
+              <label for="cf_b">Baja</label>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Facilidad de detección</label>
+          <div class="pill-group">
+            <span class="pill-bajo">
+              <input type="radio" name="crit_det" id="cd_a" value="Fácil">
+              <label for="cd_a">Fácil</label>
+            </span>
+            <span class="pill-medio">
+              <input type="radio" name="crit_det" id="cd_m" value="Moderada">
+              <label for="cd_m">Moderada</label>
+            </span>
+            <span class="pill-alto">
+              <input type="radio" name="crit_det" id="cd_b" value="Difícil">
+              <label for="cd_b">Difícil</label>
+            </span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Costo de reparación</label>
+          <div class="pill-group">
+            <span class="pill-alto">
+              <input type="radio" name="crit_cost" id="cc_a" value="Alto">
+              <label for="cc_a">Alto</label>
+            </span>
+            <span class="pill-medio">
+              <input type="radio" name="crit_cost" id="cc_m" value="Medio">
+              <label for="cc_m">Medio</label>
+            </span>
+            <span class="pill-bajo">
+              <input type="radio" name="crit_cost" id="cc_b" value="Bajo">
+              <label for="cc_b">Bajo</label>
+            </span>
+          </div>
+        </div>
+      </div>
+      <div class="field">
+        <label>Nivel de criticidad general</label>
+        <select id="crit_nivel">
+          <option value="">— Seleccionar —</option>
+          <option>Crítico</option>
+          <option>Importante</option>
+          <option>Prescindible</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. Observaciones de campo -->
+  <div class="section">
+    <div class="section-header">5. Observaciones de Campo (Estado Actual)</div>
+    <div class="section-body">
+      <div class="field-group full">
+        <div class="field">
+          <label>Estado general (visual)</label>
+          <textarea id="obs_estado" placeholder="Describa el estado visual general del equipo..."></textarea>
+        </div>
+      </div>
+      <div class="field-group full">
+        <div class="field">
+          <label>Anomalías detectadas (fugas, corrosión, ruidos, vibraciones...)</label>
+          <textarea id="obs_anomalias" placeholder="Liste las anomalías observadas durante la inspección..."></textarea>
+        </div>
+      </div>
+      <div class="field-group full">
+        <div class="field">
+          <label>Estado de conexiones eléctricas y nivel de ruido</label>
+          <textarea id="obs_elect" placeholder="Revise cables, borneras, contactores, y niveles de ruido o vibración..."></textarea>
+        </div>
+      </div>
+      <div class="field-group full">
+        <div class="field">
+          <label>Observaciones adicionales</label>
+          <textarea id="obs_adicional" placeholder="Cualquier otra observación relevante..."></textarea>
+        </div>
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Elaborado por</label>
+          <input type="text" id="meta_autor" placeholder="Nombre(s) del grupo">
+        </div>
+        <div class="field">
+          <label>Fecha</label>
+          <input type="date" id="meta_fecha">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     TAB 2 — PLAN DE MANTENIMIENTO
+════════════════════════════════════════ -->
+<div class="tab-pane" id="tab1">
+
+  <div class="section">
+    <div class="section-header">Plan de Mantenimiento Preventivo</div>
+    <div class="section-body">
+      <div class="info-note">
+        📋 Proponga mínimo <strong>5 actividades</strong> de mantenimiento preventivo para el equipo asignado. Sea específico en la descripción de cada actividad.
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Equipo</label>
+          <input type="text" id="plan_equipo" placeholder="Nombre del equipo">
+        </div>
+        <div class="field">
+          <label>Código</label>
+          <input type="text" id="plan_codigo" placeholder="Código del equipo">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">Actividades de Mantenimiento</div>
+    <div class="section-body">
+      <div class="plan-table-wrap">
+        <table class="plan-table" id="planTable">
+          <thead>
+            <tr>
+              <th style="width:30px">#</th>
+              <th style="min-width:200px">Actividad de mantenimiento</th>
+              <th style="width:110px">Tipo</th>
+              <th style="width:110px">Frecuencia</th>
+              <th style="min-width:120px">Responsable</th>
+              <th style="min-width:140px">Repuestos / Insumos</th>
+              <th style="width:90px">Duración est.</th>
+              <th style="min-width:140px">Observaciones</th>
+            </tr>
+          </thead>
+          <tbody id="planBody">
+          </tbody>
+        </table>
+      </div>
+      <button class="btn-add-row" onclick="addPlanRow()">+ Agregar actividad</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     TAB 3 — HISTORIAL DE MANTENIMIENTO
+════════════════════════════════════════ -->
+<div class="tab-pane" id="tab2">
+
+  <div class="section">
+    <div class="section-header">Historial de Mantenimiento</div>
+    <div class="section-body">
+      <div class="info-note">
+        📖 Si el equipo tiene historial visible (bitácoras, registros), documéntelo. Si no, proponga al menos 3 intervenciones <em>simuladas</em> como ejemplo.
+      </div>
+      <div class="field-group">
+        <div class="field">
+          <label>Equipo</label>
+          <input type="text" id="hist_equipo" placeholder="Nombre del equipo">
+        </div>
+        <div class="field">
+          <label>Código</label>
+          <input type="text" id="hist_codigo" placeholder="Código del equipo">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-header">Registro de Intervenciones</div>
+    <div class="section-body">
+      <div class="plan-table-wrap">
+        <table class="plan-table" id="histTable">
+          <thead>
+            <tr>
+              <th style="width:30px">#</th>
+              <th style="width:110px">Fecha</th>
+              <th style="min-width:200px">Descripción del trabajo</th>
+              <th style="width:100px">Tipo Mto.</th>
+              <th style="min-width:140px">Causa / Hallazgo</th>
+              <th style="min-width:120px">Repuestos usados</th>
+              <th style="width:90px">Duración (h)</th>
+              <th style="min-width:110px">Responsable</th>
+            </tr>
+          </thead>
+          <tbody id="histBody">
+          </tbody>
+        </table>
+      </div>
+      <button class="btn-add-row" onclick="addHistRow()">+ Agregar intervención</button>
+    </div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="section">
+    <div class="section-header">Indicadores de Mantenimiento (KPIs)</div>
+    <div class="section-body">
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">MTBF</div>
+          <input class="kpi-input" type="number" id="kpi_mtbf" placeholder="0" min="0" step="0.1" oninput="calcDisp()">
+          <div class="kpi-formula">Tiempo operativo ÷ N° fallas (horas)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">MTTR</div>
+          <input class="kpi-input" type="number" id="kpi_mttr" placeholder="0" min="0" step="0.1" oninput="calcDisp()">
+          <div class="kpi-formula">Tiempo reparación ÷ N° reparaciones (horas)</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Disponibilidad</div>
+          <div class="kpi-value" id="disp_value">—</div>
+          <div class="kpi-formula">MTBF ÷ (MTBF + MTTR) × 100%</div>
+        </div>
+      </div>
+      <div class="field-group" style="margin-top:14px">
+        <div class="field">
+          <label>N° total de fallas registradas</label>
+          <input type="number" id="kpi_fallas" placeholder="0" min="0">
+        </div>
+        <div class="field">
+          <label>Costo total de mantenimiento ($)</label>
+          <input type="number" id="kpi_costo" placeholder="0" min="0" step="100">
+        </div>
+      </div>
+      <div class="field-group full" style="margin-top:4px">
+        <div class="field">
+          <label>Análisis y conclusiones del historial</label>
+          <textarea id="hist_conclusion" placeholder="Describa los patrones de falla observados, conclusiones sobre la confiabilidad del equipo y recomendaciones..." style="min-height:90px"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FLOATING BUTTON -->
+<button class="fab" onclick="generatePDF()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+    <path d="M12 15V3m0 12l-4-4m4 4l4-4"/>
+    <path d="M2 17l.621 2.485A2 2 0 004.561 21H19.439a2 2 0 001.94-1.515L22 17"/>
+  </svg>
+  Descargar PDF
+</button>
+
+<script>
+// ── TABS ──────────────────────────────────────
+function switchTab(idx) {
+  document.querySelectorAll('.tab-pane').forEach((p, i) => p.classList.toggle('active', i === idx));
+  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+}
+
+// ── PROGRESS BAR ──────────────────────────────
+function updateProgress() {
+  const filled = document.querySelectorAll('input[id], select[id], textarea[id]');
+  let total = 0, done = 0;
+  filled.forEach(el => {
+    total++;
+    if (el.value && el.value.trim()) done++;
+  });
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+document.addEventListener('input', updateProgress);
+document.addEventListener('change', updateProgress);
+
+// ── PLAN TABLE ────────────────────────────────
+let planRowCount = 0;
+function addPlanRow() {
+  planRowCount++;
+  const n = planRowCount;
+  const tbody = document.getElementById('planBody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="num-col">${n}</td>
+    <td><textarea rows="2" placeholder="Describa la actividad de mantenimiento preventivo..."></textarea></td>
+    <td>
+      <select>
+        <option value="">—</option>
+        <option>Preventivo</option>
+        <option>Predictivo</option>
+        <option>Correctivo</option>
+        <option>Mejorativo</option>
+      </select>
+    </td>
+    <td>
+      <select>
+        <option value="">—</option>
+        <option>Diario</option>
+        <option>Semanal</option>
+        <option>Quincenal</option>
+        <option>Mensual</option>
+        <option>Trimestral</option>
+        <option>Semestral</option>
+        <option>Anual</option>
+        <option>Por condición</option>
+      </select>
+    </td>
+    <td><input type="text" placeholder="Técnico / Área"></td>
+    <td><textarea rows="2" placeholder="Repuestos, herramientas, insumos..."></textarea></td>
+    <td><input type="text" placeholder="Ej: 2 h"></td>
+    <td><textarea rows="2" placeholder="Notas adicionales..."></textarea></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+// ── HISTORIAL TABLE ────────────────────────────
+let histRowCount = 0;
+function addHistRow() {
+  histRowCount++;
+  const n = histRowCount;
+  const tbody = document.getElementById('histBody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="num-col">${n}</td>
+    <td><input type="date"></td>
+    <td><textarea rows="2" placeholder="Describa el trabajo realizado..."></textarea></td>
+    <td>
+      <select>
+        <option value="">—</option>
+        <option>Correctivo</option>
+        <option>Preventivo</option>
+        <option>Predictivo</option>
+        <option>Mejorativo</option>
+      </select>
+    </td>
+    <td><textarea rows="2" placeholder="Causa raíz / Hallazgo principal..."></textarea></td>
+    <td><input type="text" placeholder="Repuestos utilizados"></td>
+    <td><input type="number" placeholder="0" min="0" step="0.5"></td>
+    <td><input type="text" placeholder="Responsable"></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+// ── DISPONIBILIDAD ─────────────────────────────
+function calcDisp() {
+  const mtbf = parseFloat(document.getElementById('kpi_mtbf').value) || 0;
+  const mttr = parseFloat(document.getElementById('kpi_mttr').value) || 0;
+  const el = document.getElementById('disp_value');
+  if (mtbf > 0 || mttr > 0) {
+    const d = (mtbf / (mtbf + mttr) * 100).toFixed(1);
+    el.textContent = d + '%';
+  } else {
+    el.textContent = '—';
+  }
+}
+
+// ── PDF GENERATION ─────────────────────────────
+async function generatePDF() {
+  const overlay = document.getElementById('loading');
+  overlay.classList.add('show');
+
+  // Show all panes temporarily for PDF
+  const panes = document.querySelectorAll('.tab-pane');
+  const prevDisplay = [];
+  panes.forEach((p, i) => {
+    prevDisplay[i] = p.style.display;
+    p.style.display = 'block';
+  });
+
+  // Build a clean print container
+  const container = document.createElement('div');
+  container.style.cssText = 'font-family:Arial,sans-serif;color:#1B2A4A;font-size:11px;';
+
+  // Helper to create a data row
+  function row(label, value) {
+    return `<tr>
+      <td style="padding:4px 8px;font-weight:600;background:#F8FAFC;width:160px;border:1px solid #CBD5E1;">${label}</td>
+      <td style="padding:4px 8px;border:1px solid #CBD5E1;">${value || '<span style="color:#94A3B8">—</span>'}</td>
+    </tr>`;
+  }
+
+  function sectionHeader(text, color='#028090') {
+    return `<tr><td colspan="2" style="background:${color};color:#fff;font-weight:700;padding:6px 10px;font-size:12px;">${text}</td></tr>`;
+  }
+
+  // ── Tab 1 data
+  const radio = (name) => {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : '';
+  };
+
+  const taxRows = [1,2,3,4,5,6,7].map(n =>
+    `<tr>
+      <td style="padding:3px 8px;font-weight:600;background:#F8FAFC;border:1px solid #CBD5E1;">
+        <span style="display:inline-block;background:#028090;color:#fff;border-radius:3px;padding:1px 5px;font-size:10px;margin-right:4px">${n}</span>
+        Nivel ${n}
+      </td>
+      <td style="padding:3px 8px;border:1px solid #CBD5E1;">${document.getElementById('tax'+n).value || '<span style="color:#94A3B8">—</span>'}</td>
+    </tr>`
+  ).join('');
+
+  // ── Plan table
+  const planRows = Array.from(document.getElementById('planBody').rows).map((tr, i) => {
+    const inputs = tr.querySelectorAll('input,select,textarea');
+    return `<tr style="background:${i%2===0?'#fff':'#F8FAFC'}">
+      <td style="text-align:center;padding:4px;border:1px solid #CBD5E1;font-weight:700;color:#028090">${i+1}</td>
+      ${Array.from(inputs).map(el => `<td style="padding:4px 6px;border:1px solid #CBD5E1;font-size:10px;">${el.value||''}</td>`).join('')}
+    </tr>`;
+  }).join('');
+
+  // ── Hist table
+  const histRows = Array.from(document.getElementById('histBody').rows).map((tr, i) => {
+    const inputs = tr.querySelectorAll('input,select,textarea');
+    return `<tr style="background:${i%2===0?'#fff':'#F8FAFC'}">
+      <td style="text-align:center;padding:4px;border:1px solid #CBD5E1;font-weight:700;color:#028090">${i+1}</td>
+      ${Array.from(inputs).map(el => `<td style="padding:4px 6px;border:1px solid #CBD5E1;font-size:10px;">${el.value||''}</td>`).join('')}
+    </tr>`;
+  }).join('');
+
+  const mtbf = document.getElementById('kpi_mtbf').value;
+  const mttr = document.getElementById('kpi_mttr').value;
+  const disp = document.getElementById('disp_value').textContent;
+
+  container.innerHTML = `
+    <!-- HEADER PDF -->
+    <div style="background:#1B2A4A;color:#fff;padding:12px 16px;margin-bottom:12px;">
+      <div style="font-size:16px;font-weight:700;color:#02C39A;">HOJA DE VIDA DEL EQUIPO</div>
+      <div style="font-size:10px;color:#94A3B8;margin-top:2px;">Programación y Control del Mantenimiento — Laboratorio Práctico</div>
+      <div style="font-size:10px;color:#94A3B8;margin-top:1px;">Elaborado por: ${document.getElementById('meta_autor').value || '—'} &nbsp;|&nbsp; Fecha: ${document.getElementById('meta_fecha').value || '—'}</div>
+    </div>
+
+    <!-- TAB 1: HOJA DE VIDA -->
+    <table style="width:100%;border-collapse:collapse;margin-bottom:10px;">
+      ${sectionHeader('1. DATOS DE IDENTIFICACIÓN')}
+      ${row('Nombre del equipo', document.getElementById('eq_nombre').value)}
+      ${row('Código del equipo', document.getElementById('eq_codigo').value)}
+      ${row('Ubicación / Área', document.getElementById('eq_ubicacion').value)}
+      ${row('Planta / Sistema', document.getElementById('eq_planta').value)}
+      ${row('Fabricante', document.getElementById('eq_fabricante').value)}
+      ${row('Modelo', document.getElementById('eq_modelo').value)}
+      ${row('N° de serie', document.getElementById('eq_serie').value)}
+      ${row('Año de fabricación', document.getElementById('eq_anio').value)}
+      ${row('Fecha de instalación', document.getElementById('eq_instalacion').value)}
+      ${row('Estado actual', document.getElementById('eq_estado').value)}
+      ${row('Proveedor', document.getElementById('eq_proveedor').value)}
+      ${row('N° orden de compra', document.getElementById('eq_oc').value)}
+    </table>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:10px;">
+      ${sectionHeader('2. ESPECIFICACIONES TÉCNICAS')}
+      ${row('Potencia', document.getElementById('sp_potencia').value)}
+      ${row('Voltaje', document.getElementById('sp_voltaje').value)}
+      ${row('Corriente nominal', document.getElementById('sp_corriente').value)}
+      ${row('RPM', document.getElementById('sp_rpm').value)}
+      ${row('Presión de trabajo', document.getElementById('sp_presion').value)}
+      ${row('Caudal', document.getElementById('sp_caudal').value)}
+      ${row('Temperatura de operación', document.getElementById('sp_temp').value)}
+      ${row('Fluido de trabajo', document.getElementById('sp_fluido').value)}
+      ${row('Peso', document.getElementById('sp_peso').value)}
+      ${row('Dimensiones', document.getElementById('sp_dim').value)}
+      ${row('Tipo de accionamiento', document.getElementById('sp_accionamiento').value)}
+      ${row('Tipo de lubricante', document.getElementById('sp_lubricante').value)}
+    </table>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:10px;">
+      ${sectionHeader('3. CODIFICACIÓN Y TAXONOMÍA (ISO 14224)')}
+      ${taxRows}
+      <tr><td colspan="2" style="padding:4px 8px;border:1px solid #CBD5E1;background:#1B2A4A;color:#02C39A;font-weight:700;font-family:monospace;letter-spacing:2px;font-size:13px;">
+        Código: ${document.getElementById('tax_codigo').value || '—'}
+      </td></tr>
+    </table>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:10px;">
+      ${sectionHeader('4. ANÁLISIS DE CRITICIDAD')}
+      ${row('Impacto en producción', radio('crit_prod'))}
+      ${row('Frecuencia de falla', radio('crit_freq'))}
+      ${row('Facilidad de detección', radio('crit_det'))}
+      ${row('Costo de reparación', radio('crit_cost'))}
+      ${row('Nivel de criticidad general', document.getElementById('crit_nivel').value)}
+    </table>
+
+    <table style="width:100%;border-collapse:collapse;margin-bottom:10px;">
+      ${sectionHeader('5. OBSERVACIONES DE CAMPO')}
+      ${row('Estado general (visual)', document.getElementById('obs_estado').value)}
+      ${row('Anomalías detectadas', document.getElementById('obs_anomalias').value)}
+      ${row('Conexiones eléctricas / Ruido', document.getElementById('obs_elect').value)}
+      ${row('Observaciones adicionales', document.getElementById('obs_adicional').value)}
+    </table>
+
+    <!-- PAGE BREAK -->
+    <div style="page-break-before:always;"></div>
+
+    <!-- TAB 2: PLAN DE MANTENIMIENTO -->
+    <div style="background:#1B2A4A;color:#fff;padding:8px 12px;margin-bottom:8px;">
+      <div style="font-size:13px;font-weight:700;color:#E8951A;">PLAN DE MANTENIMIENTO PREVENTIVO</div>
+      <div style="font-size:10px;color:#94A3B8;">Equipo: ${document.getElementById('plan_equipo').value || '—'} &nbsp;|&nbsp; Código: ${document.getElementById('plan_codigo').value || '—'}</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:10px;font-size:9px;">
+      <thead>
+        <tr style="background:#1B2A4A;color:#fff;">
+          <th style="padding:5px;border:1px solid #CBD5E1;width:25px">#</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;">Actividad</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;width:70px">Tipo</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;width:70px">Frecuencia</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;width:90px">Responsable</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;">Repuestos</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;width:60px">Duración</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;">Obs.</th>
+        </tr>
+      </thead>
+      <tbody>${planRows || '<tr><td colspan="8" style="text-align:center;padding:10px;color:#94A3B8">Sin actividades registradas</td></tr>'}</tbody>
+    </table>
+
+    <!-- PAGE BREAK -->
+    <div style="page-break-before:always;"></div>
+
+    <!-- TAB 3: HISTORIAL -->
+    <div style="background:#1B2A4A;color:#fff;padding:8px 12px;margin-bottom:8px;">
+      <div style="font-size:13px;font-weight:700;color:#02C39A;">HISTORIAL DE MANTENIMIENTO</div>
+      <div style="font-size:10px;color:#94A3B8;">Equipo: ${document.getElementById('hist_equipo').value || '—'} &nbsp;|&nbsp; Código: ${document.getElementById('hist_codigo').value || '—'}</div>
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:10px;font-size:9px;">
+      <thead>
+        <tr style="background:#1B2A4A;color:#fff;">
+          <th style="padding:5px;border:1px solid #CBD5E1;width:25px">#</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;width:80px">Fecha</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;">Descripción</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;width:70px">Tipo</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;">Causa</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;">Repuestos</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;width:55px">Horas</th>
+          <th style="padding:5px;border:1px solid #CBD5E1;width:90px">Responsable</th>
+        </tr>
+      </thead>
+      <tbody>${histRows || '<tr><td colspan="8" style="text-align:center;padding:10px;color:#94A3B8">Sin intervenciones registradas</td></tr>'}</tbody>
+    </table>
+
+    <!-- KPIs -->
+    <table style="width:100%;border-collapse:collapse;margin-bottom:6px;">
+      ${sectionHeader('INDICADORES DE MANTENIMIENTO (KPIs)', '#1B2A4A')}
+      <tr>
+        <td style="padding:8px;border:1px solid #CBD5E1;text-align:center;width:33%">
+          <div style="font-size:10px;font-weight:700;color:#94A3B8;">MTBF (h)</div>
+          <div style="font-size:20px;font-weight:700;color:#028090;">${mtbf || '—'}</div>
+          <div style="font-size:9px;color:#94A3B8;font-style:italic">Tiempo operativo ÷ N° fallas</div>
+        </td>
+        <td style="padding:8px;border:1px solid #CBD5E1;text-align:center;width:33%">
+          <div style="font-size:10px;font-weight:700;color:#94A3B8;">MTTR (h)</div>
+          <div style="font-size:20px;font-weight:700;color:#E8951A;">${mttr || '—'}</div>
+          <div style="font-size:9px;color:#94A3B8;font-style:italic">Tiempo reparación ÷ N° reparaciones</div>
+        </td>
+        <td style="padding:8px;border:1px solid #CBD5E1;text-align:center;width:33%">
+          <div style="font-size:10px;font-weight:700;color:#94A3B8;">DISPONIBILIDAD</div>
+          <div style="font-size:20px;font-weight:700;color:#1B2A4A;">${disp}</div>
+          <div style="font-size:9px;color:#94A3B8;font-style:italic">MTBF ÷ (MTBF + MTTR) × 100%</div>
+        </td>
+      </tr>
+      ${row('N° total de fallas', document.getElementById('kpi_fallas').value)}
+      ${row('Costo total de mantenimiento ($)', document.getElementById('kpi_costo').value)}
+      ${row('Análisis y conclusiones', document.getElementById('hist_conclusion').value)}
+    </table>
+  `;
+
+  const nombre = document.getElementById('eq_nombre').value || 'equipo';
+  const fecha = document.getElementById('meta_fecha').value || new Date().toISOString().slice(0,10);
+  const filename = `HojaVida_${nombre.replace(/\s+/g,'_')}_${fecha}.pdf`;
+
+  const opt = {
+    margin: [8, 8, 8, 8],
+    filename,
+    image: { type: 'jpeg', quality: 0.95 },
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+  };
+
+  try {
+    await html2pdf().set(opt).from(container).save();
+  } catch(e) {
+    alert('Error al generar el PDF. Intente de nuevo.');
+    console.error(e);
+  }
+
+  // Restore tab visibility
+  panes.forEach((p, i) => p.style.display = prevDisplay[i]);
+  overlay.classList.remove('show');
+}
+
+// ── INIT ──────────────────────────────────────
+// Pre-populate today's date
+document.getElementById('meta_fecha').valueAsDate = new Date();
+
+// Pre-add rows to tables
+for (let i = 0; i < 6; i++) addPlanRow();
+for (let i = 0; i < 4; i++) addHistRow();
+
+updateProgress();
+</script>
+</body>
+</html>
