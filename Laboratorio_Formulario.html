@@ -418,6 +418,16 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ── PRINT / PDF STYLES ── */
+  .pdf-break {
+    display: block;
+    page-break-before: always;
+    break-before: page;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 0;
+    line-height: 0;
+  }
   @media print {
     header, .tab-nav, .fab, .btn-add-row { display: none !important; }
     .tab-pane { display: block !important; page-break-after: always; }
@@ -1187,7 +1197,7 @@ async function generatePDF() {
     </table>
 
     <!-- PAGE BREAK -->
-    <div style="page-break-before:always;"></div>
+    <div class="pdf-break"></div>
 
     <!-- TAB 2: PLAN DE MANTENIMIENTO -->
     <div style="background:#1B2A4A;color:#fff;padding:8px 12px;margin-bottom:8px;">
@@ -1211,7 +1221,7 @@ async function generatePDF() {
     </table>
 
     <!-- PAGE BREAK -->
-    <div style="page-break-before:always;"></div>
+    <div class="pdf-break"></div>
 
     <!-- TAB 3: HISTORIAL -->
     <div style="background:#1B2A4A;color:#fff;padding:8px 12px;margin-bottom:8px;">
@@ -1268,9 +1278,9 @@ async function generatePDF() {
     margin: [8, 8, 8, 8],
     filename,
     image: { type: 'jpeg', quality: 0.95 },
-    html2canvas: { scale: 2, useCORS: true },
+    html2canvas: { scale: 2, useCORS: true, logging: false },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    pagebreak: { mode: 'legacy', before: '.pdf-break' }
   };
 
   try {
