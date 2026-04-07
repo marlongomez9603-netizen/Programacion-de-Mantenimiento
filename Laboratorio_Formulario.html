@@ -459,6 +459,123 @@
     transition: width .3s;
     width: 0%;
   }
+
+  /* ── FICHA TECNICA ── */
+  .subsystem-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+  .subsystem-selector select {
+    padding: 12px 14px;
+    font-size: 15px;
+    font-weight: 600;
+    border: 2px solid var(--teal);
+    border-radius: 10px;
+    color: var(--navy);
+    background: var(--white);
+    cursor: pointer;
+  }
+  .ficha-card {
+    display: none;
+    animation: fadeInFicha .4s ease;
+  }
+  .ficha-card.visible { display: block; }
+  @keyframes fadeInFicha { from {opacity:0;transform:translateY(10px)} to {opacity:1;transform:translateY(0)} }
+  .ficha-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--navy), var(--steel));
+    border-radius: 12px;
+    margin-bottom: 14px;
+    color: var(--white);
+  }
+  .ficha-header .ficha-icon {
+    font-size: 36px;
+    line-height: 1;
+  }
+  .ficha-header h3 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .ficha-header p {
+    font-size: 12px;
+    color: #94A3B8;
+  }
+  .spec-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+  @media (max-width: 480px) { .spec-grid { grid-template-columns: 1fr; } }
+  .spec-row {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .spec-row:nth-child(odd) { background: var(--card); }
+  .spec-label {
+    font-weight: 600;
+    color: var(--gray);
+    padding: 8px 12px;
+    min-width: 130px;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: .3px;
+    display: flex;
+    align-items: center;
+  }
+  .spec-value {
+    padding: 8px 12px;
+    color: var(--navy);
+    font-weight: 500;
+    flex: 1;
+  }
+  .subsystem-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .5px;
+  }
+  .badge-g1 { background: #DBEAFE; color: #1E40AF; }
+  .badge-g2 { background: #FEF3C7; color: #92400E; }
+  .badge-g3 { background: #D1FAE5; color: #065F46; }
+  .badge-g4 { background: #EDE9FE; color: #5B21B6; }
+  .badge-g5 { background: #FCE7F3; color: #9D174D; }
+  .components-list {
+    margin-top: 10px;
+    padding: 10px 14px;
+    background: var(--card);
+    border-radius: 8px;
+    border-left: 4px solid var(--teal);
+  }
+  .components-list h4 {
+    font-size: 12px;
+    color: var(--teal);
+    font-weight: 700;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .components-list ul {
+    list-style: none;
+    padding: 0;
+  }
+  .components-list li {
+    font-size: 13px;
+    padding: 3px 0;
+    color: var(--navy);
+  }
+  .components-list li::before {
+    content: '▸ ';
+    color: var(--teal);
+    font-weight: 700;
+  }
 </style>
 </head>
 <body>
@@ -480,15 +597,255 @@
 
 <!-- TABS -->
 <div class="tab-nav">
-  <button class="tab-btn active" onclick="switchTab(0)">1. Hoja de Vida</button>
-  <button class="tab-btn" onclick="switchTab(1)">2. Plan Mto.</button>
-  <button class="tab-btn" onclick="switchTab(2)">3. Historial</button>
+  <button class="tab-btn active" onclick="switchTab(0)">0. Ficha Técnica</button>
+  <button class="tab-btn" onclick="switchTab(1)">1. Hoja de Vida</button>
+  <button class="tab-btn" onclick="switchTab(2)">2. Plan Mto.</button>
+  <button class="tab-btn" onclick="switchTab(3)">3. Historial</button>
 </div>
 
 <!-- ════════════════════════════════════════
      TAB 1 — HOJA DE VIDA
 ════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════
+     TAB 0 — FICHA TÉCNICA DEL SUBSISTEMA
+════════════════════════════════════════ -->
 <div class="tab-pane active" id="tab0">
+  <div class="section">
+    <div class="section-header">📋 Seleccione su Subsistema Asignado</div>
+    <div class="section-body">
+      <div class="info-note">
+        🎯 Seleccione el grupo/subsistema que le fue asignado. Se desplegará la <strong>ficha técnica</strong> del equipo principal con sus datos del manual del fabricante.
+      </div>
+      <div class="subsystem-selector">
+        <select id="subsystemSelect" onchange="showFicha(this.value)">
+          <option value="">— Seleccione su grupo —</option>
+          <option value="g1">Grupo 1 — Unidad Hidráulica de Potencia</option>
+          <option value="g2">Grupo 2 — Bloque de Control y Válvulas</option>
+          <option value="g3">Grupo 3 — Actuadores y Líneas</option>
+          <option value="g4">Grupo 4 — Instrumentación y Sensores</option>
+          <option value="g5">Grupo 5 — Control Eléctrico / Electrónico</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── G1: Motor + Bomba ── -->
+  <div class="ficha-card" id="ficha-g1">
+    <div class="ficha-header">
+      <div class="ficha-icon">⚙️</div>
+      <div>
+        <h3>Motor Trifásico + Bomba de Engranajes</h3>
+        <p>Subsistema: Unidad Hidráulica de Potencia &nbsp;<span class="subsystem-badge badge-g1">GRUPO 1</span></p>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">Datos del Motor Eléctrico</div>
+      <div class="section-body" style="padding:0">
+        <div class="spec-grid">
+          <div class="spec-row"><div class="spec-label">Equipo</div><div class="spec-value">Motor eléctrico trifásico</div></div>
+          <div class="spec-row"><div class="spec-label">Marca</div><div class="spec-value">Siemens</div></div>
+          <div class="spec-row"><div class="spec-label">Potencia</div><div class="spec-value">1 HP (0.746 kW)</div></div>
+          <div class="spec-row"><div class="spec-label">Velocidad</div><div class="spec-value">1800 RPM</div></div>
+          <div class="spec-row"><div class="spec-label">Voltaje</div><div class="spec-value">220/440 V — 3 Fases</div></div>
+          <div class="spec-row"><div class="spec-label">Frecuencia</div><div class="spec-value">60 Hz</div></div>
+          <div class="spec-row"><div class="spec-label">Función</div><div class="spec-value">Accionar la bomba de engranajes para generar flujo hidráulico</div></div>
+          <div class="spec-row"><div class="spec-label">Ubicación</div><div class="spec-value">Parte inferior del banco — conjunto motor-bomba</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">Datos de la Bomba de Engranajes</div>
+      <div class="section-body" style="padding:0">
+        <div class="spec-grid">
+          <div class="spec-row"><div class="spec-label">Equipo</div><div class="spec-value">Bomba de engranajes</div></div>
+          <div class="spec-row"><div class="spec-label">Marca</div><div class="spec-value">Kompass</div></div>
+          <div class="spec-row"><div class="spec-label">Caudal</div><div class="spec-value">6 LPM (litros por minuto)</div></div>
+          <div class="spec-row"><div class="spec-label">Tipo</div><div class="spec-value">Engranajes externos — desplazamiento positivo</div></div>
+          <div class="spec-row"><div class="spec-label">Acople</div><div class="spec-value">Acople flexible con campana auto-centrante HNSA</div></div>
+          <div class="spec-row"><div class="spec-label">Fluido</div><div class="spec-value">Aceite hidráulico</div></div>
+          <div class="spec-row"><div class="spec-label">Función</div><div class="spec-value">Convertir energía mecánica en energía hidráulica (presión y caudal)</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="components-list">
+      <h4>🔩 Otros componentes de este subsistema</h4>
+      <ul>
+        <li>Tanque sumidero de 5 galones — HNSA</li>
+        <li>Filtro de succión — Kompass</li>
+        <li>Tapa de llenado con filtro — Kompass</li>
+        <li>Indicador de nivel y temperatura — Kompass</li>
+        <li>Válvula de drenaje de aceite — Italy</li>
+        <li>Campana auto-centrante — HNSA</li>
+        <li>Acople motor-bomba — Kompass</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── G2: Electroválvulas ── -->
+  <div class="ficha-card" id="ficha-g2">
+    <div class="ficha-header">
+      <div class="ficha-icon">🔀</div>
+      <div>
+        <h3>Electroválvulas Direccionales 4/2 y 4/3</h3>
+        <p>Subsistema: Bloque de Control y Válvulas &nbsp;<span class="subsystem-badge badge-g2">GRUPO 2</span></p>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">Datos de las Electroválvulas</div>
+      <div class="section-body" style="padding:0">
+        <div class="spec-grid">
+          <div class="spec-row"><div class="spec-label">Equipo</div><div class="spec-value">Electroválvulas direccionales</div></div>
+          <div class="spec-row"><div class="spec-label">Marca</div><div class="spec-value">Kompass</div></div>
+          <div class="spec-row"><div class="spec-label">Configuración</div><div class="spec-value">4/2 (4 vías, 2 posiciones) y 4/3 (4 vías, 3 posiciones)</div></div>
+          <div class="spec-row"><div class="spec-label">Cantidad</div><div class="spec-value">2 juegos</div></div>
+          <div class="spec-row"><div class="spec-label">Voltaje solenoide</div><div class="spec-value">24 VDC</div></div>
+          <div class="spec-row"><div class="spec-label">Montaje</div><div class="spec-value">En subplaca (montaje modular)</div></div>
+          <div class="spec-row"><div class="spec-label">Accionamiento</div><div class="spec-value">Eléctrico (solenoide) + mando manual de emergencia</div></div>
+          <div class="spec-row"><div class="spec-label">Función</div><div class="spec-value">Controlar dirección del flujo hidráulico hacia los actuadores</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="components-list">
+      <h4>🔩 Otros componentes de este subsistema</h4>
+      <ul>
+        <li>Válvula limitadora de presión en línea — Kompass</li>
+        <li>Bloque de control de presión en acero A36 — HNSA</li>
+        <li>Válvula antiretorno insertable — Vickers</li>
+        <li>Válvula de alivio modular con electroválvula de venteo — Kompass</li>
+        <li>Montaje de mando manual de 2 palancas — Kompass</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── G3: Cilindro Hidráulico ── -->
+  <div class="ficha-card" id="ficha-g3">
+    <div class="ficha-header">
+      <div class="ficha-icon">🔧</div>
+      <div>
+        <h3>Cilindro Hidráulico Lineal</h3>
+        <p>Subsistema: Actuadores y Líneas &nbsp;<span class="subsystem-badge badge-g3">GRUPO 3</span></p>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">Datos del Cilindro Hidráulico</div>
+      <div class="section-body" style="padding:0">
+        <div class="spec-grid">
+          <div class="spec-row"><div class="spec-label">Equipo</div><div class="spec-value">Cilindro hidráulico de doble efecto</div></div>
+          <div class="spec-row"><div class="spec-label">Marca</div><div class="spec-value">HNSA</div></div>
+          <div class="spec-row"><div class="spec-label">Diámetro émbolo</div><div class="spec-value">Ø 40 mm</div></div>
+          <div class="spec-row"><div class="spec-label">Carrera efectiva</div><div class="spec-value">130 mm</div></div>
+          <div class="spec-row"><div class="spec-label">Tipo</div><div class="spec-value">Lineal — doble efecto</div></div>
+          <div class="spec-row"><div class="spec-label">Fluido</div><div class="spec-value">Aceite hidráulico</div></div>
+          <div class="spec-row"><div class="spec-label">Función</div><div class="spec-value">Convertir energía hidráulica en movimiento lineal (avance / retroceso)</div></div>
+          <div class="spec-row"><div class="spec-label">Ubicación</div><div class="spec-value">Panel frontal del banco de pruebas</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">Datos del Motor Hidráulico Rotativo</div>
+      <div class="section-body" style="padding:0">
+        <div class="spec-grid">
+          <div class="spec-row"><div class="spec-label">Equipo</div><div class="spec-value">Motor hidráulico rotativo</div></div>
+          <div class="spec-row"><div class="spec-label">Marca</div><div class="spec-value">EATON</div></div>
+          <div class="spec-row"><div class="spec-label">Tipo</div><div class="spec-value">Doble sentido de giro — alto torque, bajas revoluciones</div></div>
+          <div class="spec-row"><div class="spec-label">Función</div><div class="spec-value">Convertir energía hidráulica en movimiento rotatorio</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="components-list">
+      <h4>🔩 Otros componentes de este subsistema</h4>
+      <ul>
+        <li>Acumulador hidroneumático de 3 litros — EPE</li>
+        <li>Válvulas reguladoras de caudal (estrangulación) — Kompass</li>
+        <li>Filtro de aceite en línea de retorno con indicador de suciedad — Kompass</li>
+        <li>Tubería cincada, mangueras, soportes y accesorios de montaje</li>
+        <li>Tomas de presión tipo minimess — Stauff</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── G4: Transmisor PT100 ── -->
+  <div class="ficha-card" id="ficha-g4">
+    <div class="ficha-header">
+      <div class="ficha-icon">🌡️</div>
+      <div>
+        <h3>Transmisor de Temperatura PT100</h3>
+        <p>Subsistema: Instrumentación y Sensores &nbsp;<span class="subsystem-badge badge-g4">GRUPO 4</span></p>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">Datos del Transmisor de Temperatura</div>
+      <div class="section-body" style="padding:0">
+        <div class="spec-grid">
+          <div class="spec-row"><div class="spec-label">Equipo</div><div class="spec-value">Transmisor de temperatura con sensor PT100</div></div>
+          <div class="spec-row"><div class="spec-label">Marca</div><div class="spec-value">Siemens</div></div>
+          <div class="spec-row"><div class="spec-label">Tipo sensor</div><div class="spec-value">RTD — PT100 (resistencia de platino)</div></div>
+          <div class="spec-row"><div class="spec-label">Señal de salida</div><div class="spec-value">4 – 20 mA</div></div>
+          <div class="spec-row"><div class="spec-label">Variable medida</div><div class="spec-value">Temperatura del aceite hidráulico</div></div>
+          <div class="spec-row"><div class="spec-label">Función</div><div class="spec-value">Monitorear temperatura del aceite y enviar señal al PLC para control y alarmas</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="components-list">
+      <h4>🔩 Otros componentes de este subsistema</h4>
+      <ul>
+        <li>Transmisor de posición lineal tipo guaya 0-300 mm (4-20 mA) — Waycon</li>
+        <li>Sensores inductivos (×2) final de carrera — Autonics</li>
+        <li>Interruptor de nivel de aceite (flota) — HNSA</li>
+        <li>Interruptor de presión (alarma alta presión) — Kompass</li>
+        <li>Indicador diferencial de presión (filtro sucio) — Kompass</li>
+        <li>Manómetros análogos (×2) — Kompass</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── G5: PLC + HMI ── -->
+  <div class="ficha-card" id="ficha-g5">
+    <div class="ficha-header">
+      <div class="ficha-icon">🖥️</div>
+      <div>
+        <h3>Controlador PLC + Pantalla HMI 7"</h3>
+        <p>Subsistema: Control Eléctrico / Electrónico &nbsp;<span class="subsystem-badge badge-g5">GRUPO 5</span></p>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">Datos del PLC</div>
+      <div class="section-body" style="padding:0">
+        <div class="spec-grid">
+          <div class="spec-row"><div class="spec-label">Equipo</div><div class="spec-value">Controlador Lógico Programable (PLC)</div></div>
+          <div class="spec-row"><div class="spec-label">Marca</div><div class="spec-value">Siemens</div></div>
+          <div class="spec-row"><div class="spec-label">Módulos</div><div class="spec-value">CPU + módulo adicional de E/S digitales y análogas</div></div>
+          <div class="spec-row"><div class="spec-label">Función</div><div class="spec-value">Automatizar secuencias de operación, recibir señales de sensores y controlar actuadores</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-header">Datos de la Pantalla HMI</div>
+      <div class="section-body" style="padding:0">
+        <div class="spec-grid">
+          <div class="spec-row"><div class="spec-label">Equipo</div><div class="spec-value">Pantalla táctil HMI</div></div>
+          <div class="spec-row"><div class="spec-label">Marca</div><div class="spec-value">Siemens</div></div>
+          <div class="spec-row"><div class="spec-label">Tamaño</div><div class="spec-value">7 pulgadas</div></div>
+          <div class="spec-row"><div class="spec-label">Función</div><div class="spec-value">Visualización de alarmas, estado del sistema y supervisión de variables</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="components-list">
+      <h4>🔩 Otros componentes de este subsistema</h4>
+      <ul>
+        <li>Tablero de control eléctrico en acrílico</li>
+        <li>Fuente de conversión AC/DC — Siemens</li>
+        <li>Selectores de control de válvulas</li>
+        <li>Contacto de arranque del motor</li>
+        <li>Protección térmica del motor</li>
+        <li>Cables, conectores y marcación de componentes</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- duplicate header removed -->
+<div class="tab-pane" id="tab1">
 
   <!-- 1. Identificación -->
   <div class="section">
@@ -815,7 +1172,7 @@
 <!-- ════════════════════════════════════════
      TAB 2 — PLAN DE MANTENIMIENTO
 ════════════════════════════════════════ -->
-<div class="tab-pane" id="tab1">
+<div class="tab-pane" id="tab2">
 
   <div class="section">
     <div class="section-header">Plan de Mantenimiento Preventivo</div>
@@ -865,7 +1222,7 @@
 <!-- ════════════════════════════════════════
      TAB 3 — HISTORIAL DE MANTENIMIENTO
 ════════════════════════════════════════ -->
-<div class="tab-pane" id="tab2">
+<div class="tab-pane" id="tab3">
 
   <div class="section">
     <div class="section-header">Historial de Mantenimiento</div>
@@ -966,6 +1323,15 @@
 function switchTab(idx) {
   document.querySelectorAll('.tab-pane').forEach((p, i) => p.classList.toggle('active', i === idx));
   document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+}
+
+// ── FICHA TÉCNICA SELECTOR ─────────────────────
+function showFicha(groupId) {
+  document.querySelectorAll('.ficha-card').forEach(c => c.classList.remove('visible'));
+  if (groupId) {
+    const card = document.getElementById('ficha-' + groupId);
+    if (card) card.classList.add('visible');
+  }
 }
 
 // ── PROGRESS BAR ──────────────────────────────
